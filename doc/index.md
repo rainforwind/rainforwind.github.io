@@ -1,3 +1,5 @@
 # welcome to my blog
 
-[some doc](#some_doc)
+auto generated doc list
+
+$doclist()
