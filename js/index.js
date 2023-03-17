@@ -25,7 +25,13 @@ function renderDoc() {
     }
   }
 
-  let mode = 'python3';
+  let mode;
+  if (window.location.hostname === 'rainforwind.github.io') {
+    mode = 'python3';
+  } else {
+    mode = 'github';
+  }
+
 
   let apiPath;
   switch (mode) {
