@@ -1,0 +1,15 @@
+body {
+    display: block;
+    margin: 8px;
+}
+
+header {
+    background-color: #101010;
+    margin: -8px -8px 0 -8px;
+    padding: 4px 8px;
+    color: #F0F0F0;
+}
+
+header sub {
+    color: #C0C0C0;
+}
