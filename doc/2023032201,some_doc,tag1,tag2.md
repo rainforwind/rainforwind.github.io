@@ -1,5 +1,3 @@
-# title
-
 ## this is a test for browser rendered markdown
 
 plain text

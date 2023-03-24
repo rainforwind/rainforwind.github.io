@@ -1,8 +1,9 @@
-let converter = new showdown.Converter();
+let converter = new showdown.Converter({ tables: true });
 
 // const queryString = window.location.search
 // const urlParams = new URLSearchParams(queryString);
 
+const siteName = '如风小鸽';
 
 function preReplace(markdownWithVar, docList) {
   const dirMarkdown = '\n\n' + docList.map(doc => {
@@ -11,33 +12,38 @@ function preReplace(markdownWithVar, docList) {
     .filter(element => element)
     .join('\n\n');
 
-  const tagList = '\n\n' + docList.map(doc => {
+  const tagListMd = '\n\n' + docList.map(doc => {
     return doc.tags;
   })
     .reduce((pre, current) => { return [... new Set([...pre, ...current])] }, [])
-    .map(tag => `<a onclick="showMenu('${tag}')">${tag}</a>`)
+    .map(tag => `- <a onclick="showMenu('${tag}')" href="#^">${tag}</a>`)
     .join('\n\n');
 
-  return markdownWithVar.replaceAll(/\$doclist\((.*?)\)/g, dirMarkdown).replaceAll(/\$taglist\((.*?)\)/g, tagList);
+  return markdownWithVar.replaceAll(/\$doclist\((.*?)\)/g, dirMarkdown).replaceAll(/\$taglist\((.*?)\)/g, tagListMd);
 }
 
-function renderMd(docPath, docList) {
-  fetch(docPath)
+function renderMd(docInfo, docList) {
+  fetch(docInfo.path)
     .then(response => {
       if (response.status === 200) {
         return response.text()
       }
-      console.log(response);
+      console.debug(response);
       return Promise.reject("fetch failed with status: " + response.status)
     })
     .then(async (data) => {
-      const markdown = preReplace(data, docList);
+      const markdown = (docInfo.title ? `# ${docInfo.title}\n\n` : '') + preReplace(data, docList);
       document.getElementById("doc").innerHTML = converter.makeHtml(markdown);
+      if (docInfo.title) {
+        document.title = docInfo.title;
+      } else {
+        document.title = siteName;
+      }
     }
     )
     .catch(error => {
       console.error(error);
-      const docNotFoundMD = '# Document [' + docPath + '] not found!';
+      const docNotFoundMD = '# Document [' + docInfo.path + '] not found!';
       document.getElementById("doc").innerHTML = converter.makeHtml(docNotFoundMD);
     });
 }
@@ -107,11 +113,15 @@ function renderMd(docPath, docList) {
 
   function renderDoc() {
     let doc = window.location.hash
-    let docPath;
+    if (doc === "#^") {
+      return;
+    }
+    let docInfo;
     if (!doc || doc.length <= 1) {
-      docPath = 'index.md';
+      docInfo = {path: 'index.md', title: null};
     } else {
-      docPath = 'doc/' + doc.substring(1) + '.md';
+      const fileCoreName = decodeURI(doc).substring(1)
+      docInfo = {path: 'doc/' + fileCoreName + '.md', title: fileCoreName.split(',')[1]};
     }
 
     let customPath = '';
@@ -126,32 +136,31 @@ function renderMd(docPath, docList) {
       }
     }
 
-    renderMd(docPath, docList);
+    renderMd(docInfo, docList);
   }
 
-  addEventListener('hashchange', event => { renderDoc() });
+  addEventListener('hashchange', event => renderDoc());
   renderDoc();
 
   window.showIndex = () => {
-    renderMd('index.md', docList);
+    renderMd({path: 'index.md', title: null}, docList);
   }
 
   window.showMenu = (tag) => {
     if (tag) {
-      console.log (tag, docList)
-      renderMd('menu.md', docList.filter(
+      renderMd({path: 'menu.md', title: tag}, docList.filter(
         doc => doc.tags.includes(tag)
       ));
     } else {
-      renderMd('menu.md', docList);
+      renderMd({path: 'menu.md', title: '目录'}, docList);
     }
   }
 
   window.showTags = () => {
-    renderMd('tags.md', docList);
+    renderMd({path: 'tags.md', title: '标签'}, docList);
   }
 
   window.showAbout = () => {
-    renderMd('about.md', docList);
+    renderMd({path: 'about.md', title: '关于'}, docList);
   }
 })();

@@ -13,14 +13,16 @@
 
 <body>
     <header>如风小鸽 <sub>的个人站点</sub></header>
-    <div id="navi">
-        <a onclick="showIndex()">首页</a>
-        <a onclick="showMenu()">目录</a>
-        <a onclick="showTags()">标签</a>
-        <a onclick="showAbout()">关于</a>
+    <div id="sidebar">
+        <ul>
+            <li><a onclick="showIndex()" href="#^">首页</a></li>
+            <li><a onclick="showMenu()" href="#^">目录</a></li>
+            <li><a onclick="showTags()" href="#^">标签</a></li>
+            <li><a onclick="showAbout()" href="#^">关于</a></li>
+        </ul>
     </div>
     <div id="doc" class="markdown-body"></div>
-    <footer>未经授权，禁止转载。谣言转发XXX条是要入刑的。</footer>
+    <footer>未经授权，禁止转载。谣言转发500次是要入刑的</footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
     <script src="js/index.js"></script>
 </body>
