@@ -1,5 +1,3 @@
-# welcome to my blog
-
-auto generated doc list
+# 文章目录
 
 $doclist()
