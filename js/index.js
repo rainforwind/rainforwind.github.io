@@ -121,7 +121,11 @@ function renderMd(docInfo, docList) {
       docInfo = {path: 'index.md', title: null};
     } else {
       const fileCoreName = decodeURI(doc).substring(1)
-      docInfo = {path: 'doc/' + fileCoreName + '.md', title: fileCoreName.split(',')[1]};
+      if (fileCoreName == '^menu') {
+        docInfo = {path: 'menu.md', title: fileCoreName.split(',')[1]};
+      } else {
+        docInfo = {path: 'doc/' + fileCoreName + '.md', title: fileCoreName.split(',')[1]};
+      }
     }
 
     let customPath = '';
