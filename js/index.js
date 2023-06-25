@@ -122,7 +122,7 @@ function renderMd(docInfo, docList) {
     } else {
       const fileCoreName = decodeURI(doc).substring(1)
       if (fileCoreName == '^menu') {
-        docInfo = {path: 'menu.md', title: fileCoreName.split(',')[1]};
+        docInfo = {path: 'menu.md', title: '目录'};
       } else {
         docInfo = {path: 'doc/' + fileCoreName + '.md', title: fileCoreName.split(',')[1]};
       }
