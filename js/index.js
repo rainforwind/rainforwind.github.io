@@ -5,21 +5,41 @@ let converter = new showdown.Converter({ tables: true });
 
 const siteName = '如风小鸽';
 
+function generateReplacements(ctx, match, funcName, argString) {
+  if (funcName === 'doclist') {
+    let limit;
+    if (argString) {
+      limit = JSON.parse(argString).limit;
+    }
+    return '\n\n' + ctx.docList.map(doc => {
+      if (limit == null) {
+        return `- [${doc.title}](#${doc.path})`;
+      } else if (limit > 0) {
+        limit--;
+        return `- [${doc.title}](#${doc.path})`;
+      } else {
+        return '';
+      }
+    })
+      .filter(element => element) // remove empty
+      .join('\n\n');
+
+  } else if (funcName === 'taglist') {
+    return '\n\n' + ctx.docList.map(doc => {
+      return doc.tags;
+    })
+      .reduce((pre, current) => { return [... new Set([...pre, ...current])] }, [])
+      .map(tag => `- <a onclick="showMenu('${tag}')" href="#^">${tag}</a>`)
+      .join('\n\n');
+
+  }
+  // not replaced, return matched string
+  return match;
+}
+
 function preReplace(markdownWithVar, docList) {
-  const dirMarkdown = '\n\n' + docList.map(doc => {
-    return `- [${doc.title}](#${doc.path})`;
-  })
-    .filter(element => element)
-    .join('\n\n');
-
-  const tagListMd = '\n\n' + docList.map(doc => {
-    return doc.tags;
-  })
-    .reduce((pre, current) => { return [... new Set([...pre, ...current])] }, [])
-    .map(tag => `- <a onclick="showMenu('${tag}')" href="#^">${tag}</a>`)
-    .join('\n\n');
-
-  return markdownWithVar.replaceAll(/\$doclist\((.*?)\)/g, dirMarkdown).replaceAll(/\$taglist\((.*?)\)/g, tagListMd);
+  let ctx = { docList: docList };
+  return markdownWithVar.replaceAll(/\$(\w+)\((.*?)\)/g, (...matchArgs) => generateReplacements(ctx, ...matchArgs));
 }
 
 function renderMd(docInfo, docList) {
@@ -109,7 +129,7 @@ function renderMd(docInfo, docList) {
       }
       return { time: tokens[0], path: fileName, title: tokens[1], tags: tags }
     }
-  );
+  ).sort((a, b) => (a.time == b.time ? 0 : (a.time < b.time ? 1 : -1)));
 
   function renderDoc() {
     let doc = window.location.hash
@@ -118,13 +138,14 @@ function renderMd(docInfo, docList) {
     }
     let docInfo;
     if (!doc || doc.length <= 1) {
-      docInfo = {path: 'index.md', title: null};
+      docInfo = { path: 'index.md', title: null };
     } else {
       const fileCoreName = decodeURI(doc).substring(1)
+      console.log(fileCoreName)
       if (fileCoreName == '^menu') {
-        docInfo = {path: 'menu.md', title: '目录'};
+        docInfo = { path: 'menu.md', title: '目录' };
       } else {
-        docInfo = {path: 'doc/' + fileCoreName + '.md', title: fileCoreName.split(',')[1]};
+        docInfo = { path: 'doc/' + fileCoreName + '.md', title: fileCoreName.split(',')[1] };
       }
     }
 
@@ -147,24 +168,24 @@ function renderMd(docInfo, docList) {
   renderDoc();
 
   window.showIndex = () => {
-    renderMd({path: 'index.md', title: null}, docList);
+    renderMd({ path: 'index.md', title: null }, docList);
   }
 
   window.showMenu = (tag) => {
     if (tag) {
-      renderMd({path: 'menu.md', title: tag}, docList.filter(
+      renderMd({ path: 'menu.md', title: tag }, docList.filter(
         doc => doc.tags.includes(tag)
       ));
     } else {
-      renderMd({path: 'menu.md', title: '目录'}, docList);
+      renderMd({ path: 'menu.md', title: '目录' }, docList);
     }
   }
 
   window.showTags = () => {
-    renderMd({path: 'tags.md', title: '标签'}, docList);
+    renderMd({ path: 'tags.md', title: '标签' }, docList);
   }
 
   window.showAbout = () => {
-    renderMd({path: 'about.md', title: '关于'}, docList);
+    renderMd({ path: 'about.md', title: '关于' }, docList);
   }
 })();
