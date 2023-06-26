@@ -141,7 +141,6 @@ function renderMd(docInfo, docList) {
       docInfo = { path: 'index.md', title: null };
     } else {
       const fileCoreName = decodeURI(doc).substring(1)
-      console.log(fileCoreName)
       if (fileCoreName == '^menu') {
         docInfo = { path: 'menu.md', title: '目录' };
       } else {
