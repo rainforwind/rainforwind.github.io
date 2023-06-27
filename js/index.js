@@ -46,7 +46,12 @@ function generateReplacements(ctx, match, funcName, argString) {
 
 function preReplace(markdownWithVar, docList) {
   let ctx = { docList: docList };
-  return markdownWithVar.replaceAll(/\$(\w+)\((.*?)\)/g, (...matchArgs) => generateReplacements(ctx, ...matchArgs));
+  if (typeof (markdownWithVar.replaceAll) === 'function') {
+    return markdownWithVar.replaceAll(/\$(\w+)\((.*?)\)/g, (...matchArgs) => generateReplacements(ctx, ...matchArgs));
+  } else {
+    logError('String.prototype.replaceAll not supported')
+    return markdownWithVar;
+  }
 }
 
 function renderMd(docInfo, docList) {
@@ -58,11 +63,7 @@ function renderMd(docInfo, docList) {
       console.debug(response);
       return Promise.reject("fetch failed with status: " + response.status)
     })
-    .then(async (data, ...other) => {
-      if (typeof(data) !== 'string') {
-        logError('not string: ' + data + other)
-        return;
-      }
+    .then(async (data) => {
       const markdown = (docInfo.title ? `# ${docInfo.title}\n\n` : '') + preReplace(data, docList);
       document.getElementById("doc").innerHTML = converter.makeHtml(markdown);
       if (docInfo.title) {
