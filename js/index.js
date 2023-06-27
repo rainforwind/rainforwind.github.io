@@ -3,6 +3,13 @@ let converter = new showdown.Converter({ tables: true });
 // const queryString = window.location.search
 // const urlParams = new URLSearchParams(queryString);
 
+let errMsg = '';
+
+function logError(error) {
+  errMsg = error;
+  console.error(error);
+};
+
 const siteName = '如风小鸽';
 
 function generateReplacements(ctx, match, funcName, argString) {
@@ -62,7 +69,7 @@ function renderMd(docInfo, docList) {
     }
     )
     .catch(error => {
-      console.error(error);
+      logError(error);
       const docNotFoundMD = '# Document [' + docInfo.path + '] not found!';
       document.getElementById("doc").innerHTML = converter.makeHtml(docNotFoundMD);
     });
@@ -113,7 +120,7 @@ function renderMd(docInfo, docList) {
         return fileList;
       })
       .catch(error => {
-        console.log(error);
+        logError(error);
         return markdownWithVar;
       })
   }
@@ -184,7 +191,22 @@ function renderMd(docInfo, docList) {
     renderMd({ path: 'tags.md', title: '标签' }, docList);
   }
 
+  let errMsgCnt = 0;
+  let errMsgTime = 0;
+
   window.showAbout = () => {
+    const timestamp = Date.now();
+    if (timestamp - errMsgTime > 1000) {
+      errMsgCnt = 1;
+    } else {
+      errMsgCnt += 1;
+    }
+    errMsgTime = timestamp;
+
+    if (errMsgCnt >= 5) {
+      alert(errMsg);
+    }
+
     renderMd({ path: 'about.md', title: '关于' }, docList);
   }
 })();
