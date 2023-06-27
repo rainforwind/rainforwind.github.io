@@ -59,8 +59,8 @@ function renderMd(docInfo, docList) {
       return Promise.reject("fetch failed with status: " + response.status)
     })
     .then(async (data, ...other) => {
-      if (data == null) {
-        logError('noData: ' + other)
+      if (typeof(data) !== 'string') {
+        logError('not string: ' + data + other)
         return;
       }
       const markdown = (docInfo.title ? `# ${docInfo.title}\n\n` : '') + preReplace(data, docList);
