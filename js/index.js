@@ -58,7 +58,11 @@ function renderMd(docInfo, docList) {
       console.debug(response);
       return Promise.reject("fetch failed with status: " + response.status)
     })
-    .then(async (data) => {
+    .then(async (data, ...other) => {
+      if (data == null) {
+        logError('noData: ' + other)
+        return;
+      }
       const markdown = (docInfo.title ? `# ${docInfo.title}\n\n` : '') + preReplace(data, docList);
       document.getElementById("doc").innerHTML = converter.makeHtml(markdown);
       if (docInfo.title) {
